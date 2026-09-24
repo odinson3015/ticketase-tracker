@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BusinessStage {
+  PROSPECTING
+  CONTACTED
+  NEGOTIATING
+  WON
+  LOST
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  passwordHash  String
+  createdAt     DateTime   @default(now())
+
+  tasksAssigned Task[]     @relation("TaskAssignee")
+  tasksCreated  Task[]     @relation("TaskCreator")
+  comments      Comment[]
+  businesses    Business[] @relation("BusinessOwner")
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime   @default(now())
+
+  tasks       Task[]
+  businesses  Business[]
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+
+  createdBy   User       @relation("TaskCreator", fields: [createdById], references: [id])
+  createdById String
+
+  project     Project?   @relation(fields: [projectId], references: [id])
+  projectId   String?
+
+  business    Business?  @relation(fields: [businessId], references: [id])
+  businessId  String?
+
+  comments    Comment[]
+
+  @@index([status])
+  @@index([assigneeId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model Business {
+  id           String        @id @default(cuid())
+  name         String
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  stage        BusinessStage @default(PROSPECTING)
+  value        Float?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  owner        User?         @relation("BusinessOwner", fields: [ownerId], references: [id])
+  ownerId      String?
+
+  project      Project?      @relation(fields: [projectId], references: [id])
+  projectId    String?
+
+  tasks        Task[]
+
+  @@index([stage])
+}
