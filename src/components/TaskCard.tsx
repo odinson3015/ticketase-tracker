@@ -25,63 +25,45 @@ export function TaskCard({
   return (
     <button
       onClick={onOpen}
-      className="card w-full space-y-2.5 p-3.5 text-left transition-shadow hover:shadow-none"
-      style={{
-        borderLeft: `3px solid ${
-          task.priority === "HIGH"
-            ? "#C1543C"
-            : task.priority === "MEDIUM"
-              ? "#E8963C"
-              : "#E4E1D8"
-        }`,
-      }}
+      className="w-full rounded-card border border-line bg-surface px-3 py-2.5 text-left transition-colors hover:bg-hover"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium leading-snug text-ink">{task.title}</p>
-      </div>
+      <p className="text-sm font-medium leading-snug text-ink">{task.title}</p>
 
-      {(task.project || task.business) && (
-        <div className="flex flex-wrap gap-1.5">
-          {task.project && (
-            <span className="rounded bg-bg px-1.5 py-0.5 text-xs text-ink-muted">
-              {task.project.name}
-            </span>
-          )}
-          {task.business && (
-            <span className="rounded bg-accent-light px-1.5 py-0.5 text-xs text-accent">
-              {task.business.name}
-            </span>
-          )}
-        </div>
-      )}
-
-      <div className="flex items-center justify-between text-xs text-ink-muted">
-        <div className="flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full ${priority.dot}`} />
-          <span className={priority.text}>{priority.label}</span>
-        </div>
-        {due && (
-          <span className={overdue ? "font-medium text-danger" : ""}>
-            {overdue ? "Overdue · " : ""}
-            {format(due, "MMM d")}
-          </span>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between">
+      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-ink-muted">
         {task.assignee ? (
-          <span
-            title={task.assignee.name}
-            className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-light text-[10px] font-medium text-primary"
-          >
-            {initials(task.assignee.name)}
+          <span className="inline-flex items-center gap-1.5">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-chip text-[9px] font-medium text-ink-muted">
+              {initials(task.assignee.name)}
+            </span>
+            {task.assignee.name}
           </span>
         ) : (
-          <span className="text-xs text-ink-faint">Unassigned</span>
+          <span className="text-ink-faint">Unassigned</span>
         )}
+
+        {due && (
+          <>
+            <span className="text-ink-faint">·</span>
+            <span className={overdue ? "font-medium text-danger" : ""}>
+              {format(due, "MMM d")}
+            </span>
+          </>
+        )}
+
         {task.comments.length > 0 && (
-          <span className="text-xs text-ink-faint">{task.comments.length} note{task.comments.length === 1 ? "" : "s"}</span>
+          <>
+            <span className="text-ink-faint">·</span>
+            <span>
+              {task.comments.length} note{task.comments.length === 1 ? "" : "s"}
+            </span>
+          </>
         )}
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        <span className={"pill " + priority.pill}>{priority.label}</span>
+        {task.project && <span className="pill pill-grey">{task.project.name}</span>}
+        {task.business && <span className="pill pill-grey">{task.business.name}</span>}
       </div>
     </button>
   );

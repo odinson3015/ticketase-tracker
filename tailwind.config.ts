@@ -1,45 +1,64 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Colours are defined once as CSS variables in globals.css (light + dark),
+ * so the same utility class (e.g. `bg-surface`) works in both themes.
+ */
+const token = (name: string) => `rgb(var(${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        bg: "#FAF8F4",
-        surface: "#FFFFFF",
+        bg: token("--c-bg"),
+        surface: token("--c-surface"),
+        subtle: token("--c-subtle"),
+        hover: token("--c-hover"),
+        chip: token("--c-chip"),
+        line: token("--c-line"),
         ink: {
-          DEFAULT: "#1A1D29",
-          muted: "#5B5F73",
-          faint: "#8B8FA3",
+          DEFAULT: token("--c-ink"),
+          muted: token("--c-ink-muted"),
+          faint: token("--c-ink-faint"),
         },
-        line: "#E4E1D8",
         primary: {
-          DEFAULT: "#3B3FA1",
-          hover: "#2F3280",
-          light: "#EEEEFB",
+          DEFAULT: token("--c-primary"),
+          hover: token("--c-primary-hover"),
+          fg: token("--c-primary-fg"),
+          ink: token("--c-primary-ink"),
+          light: token("--c-primary-light"),
         },
         accent: {
-          DEFAULT: "#E8963C",
-          light: "#FCF0DF",
+          DEFAULT: token("--c-accent"),
+          light: token("--c-accent-light"),
         },
         success: {
-          DEFAULT: "#4C8C6B",
-          light: "#E7F2EC",
+          DEFAULT: token("--c-success"),
+          light: token("--c-success-light"),
         },
         danger: {
-          DEFAULT: "#C1543C",
-          light: "#FBEAE6",
+          DEFAULT: token("--c-danger"),
+          light: token("--c-danger-light"),
         },
       },
       fontFamily: {
-        heading: ["var(--font-sora)", "sans-serif"],
-        body: ["var(--font-plex)", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        card: "10px",
+        card: "4px",
+        panel: "6px",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(26, 29, 41, 0.06), 0 1px 1px rgba(26, 29, 41, 0.04)",
+        card: "none",
+        panel: "-8px 0 24px rgba(0, 0, 0, 0.08)",
+        pop: "0 4px 12px rgba(0, 0, 0, 0.08)",
+      },
+      transitionDuration: {
+        DEFAULT: "120ms",
       },
     },
   },

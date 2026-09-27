@@ -31,10 +31,10 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white font-heading font-semibold">
+          <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-card bg-primary text-primary-fg font-semibold">
             T
           </div>
-          <h1 className="font-heading text-2xl font-semibold text-ink">Join your team</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Join your team</h1>
           <p className="mt-1 text-sm text-ink-muted">
             You'll need the invite code your team lead shared.
           </p>
@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
         <form action={formAction} className="card space-y-4 p-6">
           {state.error && (
-            <p className="rounded-md bg-danger-light px-3 py-2 text-sm text-danger">
+            <p className="rounded-card bg-danger-light px-3 py-2 text-sm text-danger">
               {state.error}
             </p>
           )}
@@ -88,7 +88,7 @@ export default function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-ink-muted">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary-ink hover:underline">
             Sign in
           </Link>
         </p>

@@ -3,7 +3,13 @@ import { TaskBoard } from "@/components/TaskBoard";
 
 export const dynamic = "force-dynamic";
 
-export default async function BoardPage() {
+export default async function BoardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ project?: string }>;
+}) {
+  const { project } = await searchParams;
+
   const [tasks, users, projects, businesses] = await Promise.all([
     prisma.task.findMany({
       include: {
@@ -20,5 +26,13 @@ export default async function BoardPage() {
     prisma.business.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
 
-  return <TaskBoard tasks={tasks} users={users} projects={projects} businesses={businesses} />;
+  return (
+    <TaskBoard
+      tasks={tasks}
+      users={users}
+      projects={projects}
+      businesses={businesses}
+      initialProjectId={project}
+    />
+  );
 }

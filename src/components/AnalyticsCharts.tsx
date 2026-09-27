@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { format } from "date-fns";
+import { useTheme } from "./ThemeProvider";
 
 type StatusDatum = { status: string; count: number };
 type AssigneeDatum = { name: string; open: number };
@@ -31,78 +32,118 @@ export function AnalyticsCharts({
   assigneeData: AssigneeDatum[];
   overdueTasks: OverdueTask[];
 }) {
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+
+  // Quiet, near-neutral chart colours that work in both themes.
+  const grid = dark ? "#323232" : "#E8E8E5";
+  const axis = dark ? "#7A7A78" : "#9B9A97";
+  const barA = dark ? "#6F73D6" : "#8C8FD8";
+  const barB = dark ? "#5C5C5C" : "#C9C8C4";
+  const tooltipStyle = {
+    borderRadius: 4,
+    border: "1px solid " + grid,
+    background: dark ? "#232323" : "#FFFFFF",
+    color: dark ? "#E9E9E7" : "#191919",
+    fontSize: 13,
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Total tasks" value={String(totalTasks)} />
-        <StatCard label="Completion rate" value={`${completionRate}%`} tone="success" />
-        <StatCard
-          label="Overdue"
-          value={String(overdueCount)}
-          tone={overdueCount > 0 ? "danger" : undefined}
-        />
-        <StatCard label="Due this week" value={String(dueThisWeek)} tone="accent" />
+    <div className="space-y-8">
+      {/* Plain stat row */}
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-b border-line pb-6 md:grid-cols-4">
+        <Stat label="Total tasks" value={String(totalTasks)} />
+        <Stat label="Completion rate" value={completionRate + "%"} />
+        <Stat label="Overdue" value={String(overdueCount)} emphasis={overdueCount > 0} />
+        <Stat label="Due this week" value={String(dueThisWeek)} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="card p-5">
-          <h3 className="mb-4 text-sm font-medium text-ink">Tasks by status</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={statusData} layout="vertical" margin={{ left: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E4E1D8" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} stroke="#8B8FA3" fontSize={12} />
-              <YAxis type="category" dataKey="status" stroke="#8B8FA3" fontSize={12} width={90} />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid #E4E1D8",
-                  fontSize: 13,
-                }}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div>
+          <h3 className="section-title mb-3">Tasks by status</h3>
+          <ResponsiveContainer width="100%" height={210}>
+            <BarChart data={statusData} layout="vertical" margin={{ left: 0, right: 8 }}>
+              <CartesianGrid stroke={grid} horizontal={false} />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                stroke={axis}
+                fontSize={12}
+                tickLine={false}
+                axisLine={{ stroke: grid }}
               />
-              <Bar dataKey="count" fill="#3B3FA1" radius={[0, 4, 4, 0]} barSize={28} />
+              <YAxis
+                type="category"
+                dataKey="status"
+                stroke={axis}
+                fontSize={12}
+                width={88}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ fill: dark ? "#2C2C2C" : "#F1F1EF" }}
+              />
+              <Bar dataKey="count" fill={barA} radius={[0, 2, 2, 0]} barSize={22} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="card p-5">
-          <h3 className="mb-4 text-sm font-medium text-ink">Open tasks by person</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={assigneeData} layout="vertical" margin={{ left: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E4E1D8" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} stroke="#8B8FA3" fontSize={12} />
-              <YAxis type="category" dataKey="name" stroke="#8B8FA3" fontSize={12} width={90} />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid #E4E1D8",
-                  fontSize: 13,
-                }}
+        <div>
+          <h3 className="section-title mb-3">Open tasks by person</h3>
+          <ResponsiveContainer width="100%" height={210}>
+            <BarChart data={assigneeData} layout="vertical" margin={{ left: 0, right: 8 }}>
+              <CartesianGrid stroke={grid} horizontal={false} />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                stroke={axis}
+                fontSize={12}
+                tickLine={false}
+                axisLine={{ stroke: grid }}
               />
-              <Bar dataKey="open" fill="#E8963C" radius={[0, 4, 4, 0]} barSize={28} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                stroke={axis}
+                fontSize={12}
+                width={88}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ fill: dark ? "#2C2C2C" : "#F1F1EF" }}
+              />
+              <Bar dataKey="open" fill={barB} radius={[0, 2, 2, 0]} barSize={22} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="card p-5">
-        <h3 className="mb-4 text-sm font-medium text-ink">Overdue tasks</h3>
+      <div>
+        <h3 className="section-title mb-3">Overdue tasks</h3>
         {overdueTasks.length === 0 ? (
           <p className="text-sm text-ink-faint">Nothing overdue. Good shape.</p>
         ) : (
-          <div className="divide-y divide-line">
+          <div className="divide-y divide-line border-t border-line">
             {overdueTasks.map((t) => (
-              <div key={t.id} className="flex items-center justify-between py-2.5 text-sm">
-                <div>
-                  <p className="font-medium text-ink">{t.title}</p>
-                  <p className="text-xs text-ink-faint">
+              <div
+                key={t.id}
+                className="flex items-center justify-between gap-4 py-2.5 text-sm"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-ink">{t.title}</p>
+                  <p className="mt-0.5 text-xs text-ink-faint">
                     {t.assignee}
-                    {t.project ? ` · ${t.project}` : ""}
+                    {t.project ? " · " + t.project : ""}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="shrink-0 text-right">
                   <p className="text-danger">{format(new Date(t.dueDate), "MMM d")}</p>
-                  <p className="text-xs text-ink-faint">
-                    {t.daysOverdue} day{t.daysOverdue === 1 ? "" : "s"} overdue
+                  <p className="mt-0.5 text-xs text-ink-faint">
+                    {t.daysOverdue} day{t.daysOverdue === 1 ? "" : "s"} late
                   </p>
                 </div>
               </div>
@@ -114,27 +155,26 @@ export function AnalyticsCharts({
   );
 }
 
-function StatCard({
+function Stat({
   label,
   value,
-  tone,
+  emphasis,
 }: {
   label: string;
   value: string;
-  tone?: "success" | "danger" | "accent";
+  emphasis?: boolean;
 }) {
-  const toneClass =
-    tone === "success"
-      ? "text-success"
-      : tone === "danger"
-        ? "text-danger"
-        : tone === "accent"
-          ? "text-accent"
-          : "text-ink";
   return (
-    <div className="card p-4">
-      <p className="text-xs text-ink-muted">{label}</p>
-      <p className={`mt-1 font-heading text-2xl font-semibold ${toneClass}`}>{value}</p>
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wide text-ink-faint">{label}</p>
+      <p
+        className={
+          "mt-1 text-3xl font-semibold tracking-tight " +
+          (emphasis ? "text-danger" : "text-ink")
+        }
+      >
+        {value}
+      </p>
     </div>
   );
 }

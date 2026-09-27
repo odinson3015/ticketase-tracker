@@ -2,35 +2,194 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ */
+/*  Colour tokens: light mode by default, overridden inside .dark      */
+/*  Values are space separated RGB channels so Tailwind can add alpha. */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --c-bg: 255 255 255;
+  --c-surface: 255 255 255;
+  --c-subtle: 247 247 245;
+  --c-hover: 241 241 239;
+  --c-chip: 233 233 231;
+  --c-line: 232 232 229;
+
+  --c-ink: 25 25 25;
+  --c-ink-muted: 107 107 107;
+  --c-ink-faint: 155 154 151;
+
+  --c-primary: 59 63 161;
+  --c-primary-hover: 47 50 128;
+  --c-primary-fg: 255 255 255;
+  --c-primary-ink: 59 63 161;
+  --c-primary-light: 238 238 251;
+
+  --c-accent: 176 105 24;
+  --c-accent-light: 252 243 228;
+
+  --c-success: 56 118 86;
+  --c-success-light: 232 243 236;
+
+  --c-danger: 180 70 47;
+  --c-danger-light: 251 234 230;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --c-bg: 25 25 25;
+  --c-surface: 35 35 35;
+  --c-subtle: 32 32 32;
+  --c-hover: 44 44 44;
+  --c-chip: 58 58 58;
+  --c-line: 50 50 50;
+
+  --c-ink: 233 233 231;
+  --c-ink-muted: 158 158 156;
+  --c-ink-faint: 122 122 120;
+
+  --c-primary: 79 83 196;
+  --c-primary-hover: 96 100 212;
+  --c-primary-fg: 255 255 255;
+  --c-primary-ink: 150 153 240;
+  --c-primary-light: 41 42 68;
+
+  --c-accent: 226 166 92;
+  --c-accent-light: 58 45 28;
+
+  --c-success: 111 183 143;
+  --c-success-light: 26 46 36;
+
+  --c-danger: 232 132 107;
+  --c-danger-light: 56 30 24;
+}
+
 @layer base {
   html {
     @apply bg-bg;
   }
   body {
-    @apply bg-bg text-ink font-body antialiased;
-  }
-  h1,
-  h2,
-  h3,
-  h4 {
-    @apply font-heading;
+    @apply bg-bg font-sans text-ink antialiased;
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary;
+    @apply outline-none ring-2 ring-primary-ink/40 ring-offset-1 ring-offset-bg;
+  }
+  /* Slim, quiet scrollbars to match the flat surfaces. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--c-chip)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--c-chip));
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 
 @layer components {
+  /* ---------------- buttons ---------------- */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-card bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg transition-colors hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-surface px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-bg;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-card border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-hover disabled:pointer-events-none disabled:opacity-50;
   }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-card px-2 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-hover hover:text-ink;
+  }
+  .btn-icon {
+    @apply inline-flex h-7 w-7 items-center justify-center rounded-card text-ink-muted transition-colors hover:bg-hover hover:text-ink;
+  }
+
+  /* ---------------- form fields ---------------- */
   .input-field {
-    @apply w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none;
+    @apply w-full rounded-card border border-line bg-surface px-2.5 py-1.5 text-sm text-ink transition-colors placeholder:text-ink-faint focus:border-primary-ink/60 focus:outline-none focus:ring-0;
   }
+  /* Borderless field used in the side panel property rows. */
+  .field-bare {
+    @apply w-full rounded-card border border-transparent bg-transparent px-2 py-1 text-sm text-ink transition-colors placeholder:text-ink-faint hover:bg-hover focus:border-line focus:bg-surface focus:outline-none focus:ring-0;
+  }
+  .field-label {
+    @apply text-sm text-ink-muted;
+  }
+
+  /* ---------------- surfaces ---------------- */
   .card {
-    @apply rounded-card border border-line bg-surface shadow-card;
+    @apply rounded-card border border-line bg-surface;
+  }
+  .page-title {
+    @apply text-3xl font-semibold tracking-tight text-ink;
+  }
+  .section-title {
+    @apply text-sm font-medium text-ink;
+  }
+  .divider {
+    @apply border-t border-line;
+  }
+
+  /* ---------------- select style tags ---------------- */
+  .pill {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-card px-1.5 py-0.5 text-xs font-medium leading-5;
+  }
+  .pill-grey {
+    @apply bg-chip text-ink-muted;
+  }
+
+  /* ---------------- tables ---------------- */
+  .table-wrap {
+    @apply overflow-x-auto rounded-card border border-line;
+  }
+  .table-base {
+    @apply w-full min-w-[720px] border-collapse text-left text-sm;
+  }
+  .table-head {
+    @apply border-b border-line bg-subtle text-xs font-medium text-ink-muted;
+  }
+  .th {
+    @apply whitespace-nowrap px-3 py-2 font-medium;
+  }
+  .td {
+    @apply px-3 py-2 align-middle;
+  }
+  .table-row {
+    @apply cursor-pointer border-b border-line transition-colors last:border-0 hover:bg-hover;
+  }
+
+  /* ---------------- sidebar ---------------- */
+  .nav-link {
+    @apply flex items-center gap-2 rounded-card px-2 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-hover hover:text-ink;
+  }
+  .nav-link-active {
+    @apply bg-hover text-ink;
+  }
+}
+
+/* Side panel slide-in */
+@keyframes panel-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.animate-panel-in {
+  animation: panel-in 150ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-panel-in {
+    animation: none;
   }
 }

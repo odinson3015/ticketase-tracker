@@ -50,9 +50,9 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="font-heading text-2xl font-semibold text-ink">Analytics</h1>
-        <p className="mt-1 text-sm text-ink-muted">How the team is tracking, at a glance.</p>
+      <div className="mb-8">
+        <h1 className="page-title">Analytics</h1>
+        <p className="mt-1.5 text-sm text-ink-muted">How the team is tracking, at a glance.</p>
       </div>
       <AnalyticsCharts
         totalTasks={total}
