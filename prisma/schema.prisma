@@ -34,6 +34,9 @@ model User {
   passwordHash  String
   createdAt     DateTime   @default(now())
 
+  /// When false, this user gets no notification emails.
+  emailNotifications Boolean @default(true)
+
   tasksAssigned Task[]     @relation("TaskAssignee")
   tasksCreated  Task[]     @relation("TaskCreator")
   comments      Comment[]

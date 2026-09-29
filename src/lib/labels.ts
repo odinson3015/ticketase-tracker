@@ -19,6 +19,12 @@ export const statusConfig: Record<TaskStatus, Tag> = {
   DONE: { label: "Done", pill: "bg-success-light text-success", dot: "bg-success" },
 };
 
+export const priorityLabels: Record<Priority, string> = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
 export const priorityConfig: Record<Priority, Tag> = {
   LOW: { label: "Low", pill: "bg-chip text-ink-muted", dot: "bg-ink-faint" },
   MEDIUM: { label: "Medium", pill: "bg-accent-light text-accent", dot: "bg-accent" },

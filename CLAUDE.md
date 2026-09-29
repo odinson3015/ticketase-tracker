@@ -23,38 +23,80 @@ commands to copy, and say what success looks like after each step.
   tsx prisma/seed.ts && next build`, so schema changes are applied to the live
   database automatically on deploy. No local database or .env is needed.
 - Vercel env vars: DATABASE_URL (from Prisma Postgres integration), NEXTAUTH_SECRET,
-  TEAM_INVITE_CODE. NEXTAUTH_URL is intentionally not set (Vercel infers it).
+  TEAM_INVITE_CODE, and for email: RESEND_API_KEY, EMAIL_FROM, APP_URL.
+  NEXTAUTH_URL is intentionally not set (Vercel infers it).
 - Share the permanent production domain (from Vercel > Domains), not per-deployment URLs.
 
 ## Features
-- Register (requires TEAM_INVITE_CODE) and login.
-- Board (/board): kanban columns To Do / In Progress / Done; tasks have title,
-  description, assignee, priority (Low/Medium/High), due date, linked project/event,
-  linked business, and a notes/comments thread. "+ New project" button creates projects
-  (e.g. "HCD 2026"). Filter by project.
+- Register (requires TEAM_INVITE_CODE) and login. Signing in lands on /dashboard.
+- Dashboard (/dashboard): stat row, team progress bars per member (plus an
+  "Unassigned" row), the signed-in user's open tasks by due date, and tasks due in
+  the next 7 days. All computed server-side with Prisma.
+- Board (/board): Board/Table view toggle (choice saved in localStorage). Kanban
+  columns To Do / In Progress / Done; tasks have title, description, assignee,
+  priority (Low/Medium/High), due date, linked project/event, linked business, and a
+  notes/comments thread. Filter by project, or use the sidebar Projects list
+  (/board?project=<id>). Clicking a task opens a right-hand side panel.
 - Businesses (/businesses): pipeline table with stages Prospecting / Contacted /
   Negotiating / Won / Lost, contact info, deal value in BDT, owner, notes, linked project.
 - Analytics (/analytics): total tasks, completion rate, overdue count, due this week,
   tasks by status, open tasks per person, list of overdue tasks.
+- Settings (/settings): account details and an "Email me notifications" switch.
+- Dark mode: sun/moon toggle at the bottom of the sidebar.
+
+## Email notifications
+- All sending lives in src/lib/email.ts, using the official `resend` package.
+- Two notifications, both triggered from src/app/actions/tasks.ts:
+  1. Task assigned — on createTask (when an assignee is set) and on updateTask
+     (only when assigneeId actually changed). Emails the new assignee with who
+     assigned it, title, description, project, priority, due date, and a button
+     to the board.
+  2. Task completed — on updateTaskStatus when status moves to DONE from something
+     else. Emails the task's creator with who completed it, title, and a board link.
+- Nobody is ever emailed about their own action (assignee === actor, or
+  creator === actor short-circuits before sending).
+- Recipients come from User.email; User.emailNotifications (Boolean, default true)
+  opts a person out. Changed via src/app/actions/settings.ts.
+- Env: RESEND_API_KEY, EMAIL_FROM (e.g. "Ticketase Tracker <tracker@notify.ticketase.com>",
+  must be a domain verified in Resend), APP_URL (live site, used for email links;
+  falls back to VERCEL_URL). With RESEND_API_KEY missing, emails are simply off.
+- Sending never breaks a save: every exported function catches its own errors and
+  just console.errors. Keep it that way when adding new notifications.
 
 ## Code layout
 - prisma/schema.prisma: User, Project, Task, Comment, Business models
 - prisma/seed.ts: creates a default "General" project (idempotent)
-- src/app/actions/: server actions (auth, tasks, businesses, projects)
-- src/app/(dashboard)/: board, businesses, analytics pages (auth-protected via middleware)
-- src/components/: TaskBoard, TaskCard, TaskModal, BusinessTable, BusinessModal,
-  AnalyticsCharts, Navbar
-- src/lib/: prisma client, NextAuth config, label/color maps
+- src/app/actions/: server actions (auth, tasks, businesses, projects, settings)
+- src/app/(dashboard)/: dashboard, board, businesses, analytics, settings pages
+  (auth-protected via middleware; all force-dynamic)
+- src/components/: Sidebar, TaskBoard, TaskCard, TaskTable, TaskPanel, SidePanel,
+  BusinessTable, BusinessPanel, AnalyticsCharts, ThemeProvider, ThemeToggle,
+  EmailNotificationToggle, icons
+- src/lib/: prisma client, NextAuth config, label/tag maps, email
 
 ## Design
-Custom palette in tailwind.config.ts: warm off-white background (#FAF8F4), indigo
-primary (#3B3FA1), amber accent (#E8963C). Fonts: Sora (headings), IBM Plex Sans (body).
-Keep new UI consistent with these.
+Notion-inspired: calm, minimal, content-first. Left sidebar (collapses behind a menu
+button under md), white/near-white surfaces, 1px borders instead of shadows, 4px radius,
+generous whitespace, soft grey hover states. Inter via next/font throughout. Indigo
+(#3B3FA1) only as a small accent: active links, primary buttons, progress bars.
+Status/priority/stage render as soft tinted pill tags.
+
+Colours are CSS variables defined once in src/app/globals.css for light and again
+under `.dark`, mapped to Tailwind names in tailwind.config.ts (bg, surface, subtle,
+hover, chip, line, ink/-muted/-faint, primary/-hover/-fg/-ink/-light, accent, success,
+danger). So `bg-surface`, `text-ink` etc. work in both themes with no `dark:` variants.
+Add new colours as variables in both blocks rather than hardcoding hex.
+
+Dark mode is Tailwind class-based (`darkMode: "class"`). An inline script in the root
+layout (themeInitScript in ThemeProvider.tsx) sets the `dark` class before first paint.
+Anything that differs between themes must be driven by CSS, not React state, or it
+causes a hydration mismatch.
 
 ## Known limitations / possible next steps
 - No roles or permissions: every signed-in user can see and edit everything.
 - Status changes use arrow buttons, not drag and drop.
-- No way to rename/delete projects from the UI yet.
+- No way to rename/delete projects from the UI yet ("+" in the sidebar creates them).
+- No email on comments/notes, due-date reminders, or business pipeline changes.
 - Destructive schema changes (dropping or renaming columns) will make `prisma db push`
   fail the build on purpose; handle those carefully rather than forcing data loss.
 

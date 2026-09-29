@@ -17,6 +17,7 @@ import {
   LogoutIcon,
   MenuIcon,
   PlusIcon,
+  SettingsIcon,
 } from "./icons";
 
 const links = [
@@ -24,6 +25,7 @@ const links = [
   { href: "/board", label: "Board", Icon: BoardIcon },
   { href: "/businesses", label: "Businesses", Icon: BriefcaseIcon },
   { href: "/analytics", label: "Analytics", Icon: ChartIcon },
+  { href: "/settings", label: "Settings", Icon: SettingsIcon },
 ];
 
 function initials(name: string) {

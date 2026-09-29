@@ -130,3 +130,12 @@ export function LogoutIcon({ className = "h-4 w-4" }: IconProps) {
     </svg>
   );
 }
+
+export function SettingsIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="10" cy="10" r="2.4" />
+      <path d="M10 2.75h.9l.35 1.9 1.6.66 1.6-1.1.9.9-1.1 1.6.66 1.6 1.9.35v1.8l-1.9.35-.66 1.6 1.1 1.6-.9.9-1.6-1.1-1.6.66-.35 1.9h-1.8l-.35-1.9-1.6-.66-1.6 1.1-.9-.9 1.1-1.6-.66-1.6-1.9-.35v-1.8l1.9-.35.66-1.6-1.1-1.6.9-.9 1.6 1.1 1.6-.66.35-1.9Z" />
+    </svg>
+  );
+}
